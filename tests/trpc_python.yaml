@@ -1,0 +1,61 @@
+# Tencent is pleased to support the open source community by making tRPC-Metrics-Prometheus available.
+#
+# Copyright (C) 2026 Tencent. All rights reserved.
+#
+# tRPC-Metrics-Prometheus is licensed under Apache-2.0.
+
+global: # Global configuration.
+    namespace: Production # Environment type: production or development.
+    env_name: formal # Environment name used when namespace is not production.
+    container_name: exampleserver-t-llmcs2-0
+    local_ip: 127.0.0.1 # Local IP. Container IP inside a container; host IP on a physical or virtual machine.
+    admin_port: 11026 # Admin command service port.
+    enable_set: N # Whether set is enabled.
+    full_set_name: # Set name.
+server:
+    app: ExampleApp # Application name.
+    server: ExampleServer # Process service name.
+    bin_path: /usr/local/trpc/bin/ # Directory of the binary and framework config.
+    conf_path: /usr/local/trpc/conf/ # Directory of business config files.
+    data_path: /usr/local/trpc/data/ # Directory of business data files.
+    admin:
+        ip: 127.0.0.1 # ip, local_ip, or trpc_admin_ip are all accepted.
+        port: 11026 #
+    filter:
+        - prometheus
+    service: # Services exposed by this process. More than one is allowed.
+      - name: trpc.ExampleApp.ExampleServer.ExampleObj # Service route name.
+        network: tcp # Transport: tcp or udp.
+        protocol: trpc # Application protocol: trpc or http.
+        timeout: 1000 # Maximum request handling time, in milliseconds.
+        ip: 127.0.0.1 # Address inside the container.
+        port: 11021
+client:
+    filter:
+        - prometheus
+    namespace: Production
+    timeout: 1000
+plugins:
+    log:
+        default:
+            - writer: file # Local file writer.
+              level: info # Level of the rolling file log.
+              writer_config: # File writer settings.
+              log_path: /usr/local/trpc/log/
+              filename: trpc.log # Path of the rolling file log.
+              roll_type: size # Roll type. size rolls by file size.
+              max_age: 7 # Maximum days to keep logs.
+              max_size: 10 # Rolling file size, in MB.
+              max_backups: 10 # Maximum number of log files.
+              compress: false # Whether to compress log files.
+    metrics:
+        prometheus:                                           #007 monitor
+            report_interval: 10                         # Report interval in seconds. Optional, default 60.
+            push_gateway_addr: ''            # Push gateway address without auth.
+            app:       ExampleApp # Application name. Optional; falls back to server.app.
+            server:    ExampleServer # Server name. Optional; falls back to server.server.
+            namespace:  Development                      # Environment type: production or development. Optional; falls back to global.namespace.
+            envName: test
+            setName: llm.cs.2
+            container:  exampleserver-t-llmcs2-0                   # Container name. Optional; falls back to global.container_name.
+            ip:        0.0.0.0                          # Local IP. Optional; falls back to global.local_ip.
